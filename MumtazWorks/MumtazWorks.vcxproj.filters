@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{1e3a2b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Logger">
+      <UniqueIdentifier>{2a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Memory">
+      <UniqueIdentifier>{3b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\PatternScanner">
+      <UniqueIdentifier>{4c3d4e5f-6a7b-8c9d-0e1f-2a3b4c5d6e7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\HookManager">
+      <UniqueIdentifier>{5d4e5f6a-7b8c-9d0e-1f2a-3b4c5d6e7f8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{6e5f6a7b-8c9d-0e1f-2a3b-4c5d6e7f8a9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\D3D9Hook">
+      <UniqueIdentifier>{7f6a7b8c-9d0e-1f2a-3b4c-5d6e7f8a9b0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\ImGuiManager">
+      <UniqueIdentifier>{8a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Features">
+      <UniqueIdentifier>{9b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Features\IFeature">
+      <UniqueIdentifier>{0c9d0e1f-2a3b-4c5d-6e7f-8a9b0c1d2e3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Features\TestFeature">
+      <UniqueIdentifier>{1d0e1f2a-3b4c-5d6e-7f8a-9b0c1d2e3f4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Offsets">
+      <UniqueIdentifier>{2e1f2a3b-4c5d-6e7f-8a9b-0c1d2e3f4a5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\HookManager\HookManager.h">
+      <Filter>Core\HookManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Logger\Logger.h">
+      <Filter>Core\Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Memory\Memory.h">
+      <Filter>Core\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\PatternScanner\PatternScanner.h">
+      <Filter>Core\PatternScanner</Filter>
+    </ClCompile>
+    <ClCompile Include="Features\IFeature\IFeature.h">
+      <Filter>Features\IFeature</Filter>
+    </ClCompile>
+    <ClCompile Include="Features\TestFeature\TestFeature.h">
+      <Filter>Features\TestFeature</Filter>
+    </ClCompile>
+    <ClCompile Include="Features\TestFeature\TestFeature.cpp">
+      <Filter>Features\TestFeature</Filter>
+    </ClCompile>
+    <ClCompile Include="Offsets\Offsets.h">
+      <Filter>Offsets</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\D3D9Hook\D3D9Hook.h">
+      <Filter>Renderer\D3D9Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\D3D9Hook\D3D9Hook.cpp">
+      <Filter>Renderer\D3D9Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ImGuiManager\ImGuiManager.h">
+      <Filter>Renderer\ImGuiManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\ImGuiManager\ImGuiManager.cpp">
+      <Filter>Renderer\ImGuiManager</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

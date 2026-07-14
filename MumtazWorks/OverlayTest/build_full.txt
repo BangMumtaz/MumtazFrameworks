@@ -1,0 +1,15 @@
+MSBuild version 17.14.19+164abd434 for .NET Framework
+
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppClean.targets(77,5): warning : The process cannot access the file 'c:\users\dwisa\source\repos\mumtazworks\obj\debug\overlaytest\overlaytest.ilk' because it is being used by another process. [c:\Users\dwisa\source\repos\MumtazWorks\MumtazWorks\OverlayTest\OverlayTest.vcxproj]
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppClean.targets(77,5): warning : The process cannot access the file 'c:\users\dwisa\source\repos\mumtazworks\bin\debug\overlaytest.pdb' because it is being used by another process. [c:\Users\dwisa\source\repos\MumtazWorks\MumtazWorks\OverlayTest\OverlayTest.vcxproj]
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppClean.targets(77,5): warning : The process cannot access the file 'c:\users\dwisa\source\repos\mumtazworks\bin\debug\overlaytest.exe' because it is being used by another process. [c:\Users\dwisa\source\repos\MumtazWorks\MumtazWorks\OverlayTest\OverlayTest.vcxproj]
+  main.cpp
+  imgui.cpp
+  imgui_draw.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  imgui_demo.cpp
+  imgui_impl_dx9.cpp
+  imgui_impl_win32.cpp
+  Generating Code...
+  OverlayTest.vcxproj -> c:\Users\dwisa\source\repos\MumtazWorks\bin\Debug\OverlayTest.exe

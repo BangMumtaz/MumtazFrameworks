@@ -1,0 +1,276 @@
+ // OverlayTest - Standalone ImGui + DirectX9 validation application
+ // Purpose: Verify that Dear ImGui and DirectX9 render correctly,
+ //          independent of Resident Evil 5 or any DLL injection.
+ //
+ // No SafetyHook, no PatternScanner, no DLL injection.
+ 
+ #include "imgui.h"
+ #include "imgui_impl_dx9.h"
+ #include "imgui_impl_win32.h"
+ #include <d3d9.h>
+ #include <tchar.h>
+ #include <string>
+ 
+ // ---------------------------------------------------------------------------
+ // Globals
+ // ---------------------------------------------------------------------------
+ static LPDIRECT3D9              g_pD3D           = nullptr;
+ static LPDIRECT3DDEVICE9        g_pd3dDevice     = nullptr;
+ static bool                     g_DeviceLost     = false;
+ static UINT                     g_ResizeWidth    = 0;
+ static UINT                     g_ResizeHeight   = 0;
+ static D3DPRESENT_PARAMETERS    g_d3dpp          = {};
+ 
+ // Forward declarations
+ static bool  CreateDeviceD3D(HWND hWnd);
+ static void  CleanupDeviceD3D();
+ static void  ResetDevice();
+ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+ 
+ // ---------------------------------------------------------------------------
+ // Entry point
+ // ---------------------------------------------------------------------------
+ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int)
+ {
+     // DPI awareness
+     ImGui_ImplWin32_EnableDpiAwareness();
+     float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(
+         ::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
+ 
+     // ----- Register window class -----
+     WNDCLASSEXW wc = {
+         sizeof(wc),
+         CS_CLASSDC,
+         WndProc,
+         0L,
+         0L,
+         hInstance,
+         nullptr,
+         nullptr,
+         nullptr,
+         nullptr,
+         L"OverlayTestClass",
+         nullptr
+     };
+     ::RegisterClassExW(&wc);
+ 
+     // ----- Create window -----
+     HWND hwnd = ::CreateWindowW(
+         wc.lpszClassName,
+         L"MumtazWorks Overlay Test",
+         WS_OVERLAPPEDWINDOW,
+         100, 100,
+         static_cast<int>(800 * main_scale),
+         static_cast<int>(600 * main_scale),
+         nullptr, nullptr, wc.hInstance, nullptr);
+ 
+     // ----- Initialize Direct3D 9 -----
+     if (!CreateDeviceD3D(hwnd))
+     {
+         CleanupDeviceD3D();
+         ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+         return 1;
+     }
+ 
+     // ----- Show window -----
+     ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+     ::UpdateWindow(hwnd);
+ 
+     // ----- Setup Dear ImGui context -----
+     IMGUI_CHECKVERSION();
+     ImGui::CreateContext();
+     ImGuiIO& io = ImGui::GetIO();
+     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+ 
+     ImGui::StyleColorsDark();
+ 
+     ImGuiStyle& style = ImGui::GetStyle();
+     style.ScaleAllSizes(main_scale);
+ 
+     // ----- Setup Platform / Renderer backends -----
+     ImGui_ImplWin32_Init(hwnd);
+     ImGui_ImplDX9_Init(g_pd3dDevice);
+ 
+     // ----- Application state -----
+     int  frameCounter = 0;
+     int  BaseMap      = 100;
+ 
+     // ----- Main loop -----
+     bool done = false;
+     while (!done)
+     {
+         // Poll messages
+         MSG msg;
+         while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
+         {
+             ::TranslateMessage(&msg);
+             ::DispatchMessage(&msg);
+             if (msg.message == WM_QUIT)
+                 done = true;
+         }
+         if (done)
+             break;
+ 
+         // Handle lost device
+         if (g_DeviceLost)
+         {
+             HRESULT hr = g_pd3dDevice->TestCooperativeLevel();
+             if (hr == D3DERR_DEVICELOST)
+             {
+                 ::Sleep(10);
+                 continue;
+             }
+             if (hr == D3DERR_DEVICENOTRESET)
+                 ResetDevice();
+             g_DeviceLost = false;
+         }
+ 
+         // Handle window resize
+         if (g_ResizeWidth != 0 && g_ResizeHeight != 0)
+         {
+             g_d3dpp.BackBufferWidth  = g_ResizeWidth;
+             g_d3dpp.BackBufferHeight = g_ResizeHeight;
+             g_ResizeWidth = g_ResizeHeight = 0;
+             ResetDevice();
+         }
+ 
+         // ---- Start ImGui frame ----
+         ImGui_ImplDX9_NewFrame();
+         ImGui_ImplWin32_NewFrame();
+         ImGui::NewFrame();
+ 
+         // Increment frame counter
+         frameCounter++;
+ 
+         // ---- Test window ----
+         ImGui::Begin("MumtazWorks Overlay Test");
+ 
+         // Status indicators
+         ImGui::Text("ImGui Initialized");
+         ImGui::Text("DirectX9 Initialized");
+         ImGui::Separator();
+ 
+         // Frame counter and FPS
+         ImGui::Text("Frame Counter: %d", frameCounter);
+         ImGui::Text("FPS: %.1f", io.Framerate);
+         ImGui::Separator();
+ 
+         // BaseMap input
+         ImGui::InputInt("BaseMap", &BaseMap);
+ 
+         // Increment button
+         if (ImGui::Button("Increment"))
+         {
+             BaseMap += 1;
+         }
+ 
+         ImGui::End();
+ 
+         // ---- Rendering ----
+         ImGui::EndFrame();
+ 
+         g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+         g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+         g_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+ 
+         D3DCOLOR clear_col = D3DCOLOR_RGBA(30, 30, 30, 255);
+         g_pd3dDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clear_col, 1.0f, 0);
+ 
+         if (g_pd3dDevice->BeginScene() >= 0)
+         {
+             ImGui::Render();
+             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+             g_pd3dDevice->EndScene();
+         }
+ 
+         HRESULT result = g_pd3dDevice->Present(nullptr, nullptr, nullptr, nullptr);
+         if (result == D3DERR_DEVICELOST)
+             g_DeviceLost = true;
+     }
+ 
+     // ----- Cleanup -----
+     ImGui_ImplDX9_Shutdown();
+     ImGui_ImplWin32_Shutdown();
+     ImGui::DestroyContext();
+ 
+     CleanupDeviceD3D();
+     ::DestroyWindow(hwnd);
+     ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+ 
+     return 0;
+ }
+ 
+ // ---------------------------------------------------------------------------
+ // DirectX 9 helpers
+ // ---------------------------------------------------------------------------
+ static bool CreateDeviceD3D(HWND hWnd)
+ {
+     if ((g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)) == nullptr)
+         return false;
+ 
+     ZeroMemory(&g_d3dpp, sizeof(g_d3dpp));
+     g_d3dpp.Windowed               = TRUE;
+     g_d3dpp.SwapEffect             = D3DSWAPEFFECT_DISCARD;
+     g_d3dpp.BackBufferFormat       = D3DFMT_UNKNOWN;
+     g_d3dpp.EnableAutoDepthStencil = TRUE;
+     g_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+     g_d3dpp.PresentationInterval   = D3DPRESENT_INTERVAL_ONE; // VSync
+ 
+     if (g_pD3D->CreateDevice(
+             D3DADAPTER_DEFAULT,
+             D3DDEVTYPE_HAL,
+             hWnd,
+             D3DCREATE_HARDWARE_VERTEXPROCESSING,
+             &g_d3dpp,
+             &g_pd3dDevice) < 0)
+     {
+         return false;
+     }
+ 
+     return true;
+ }
+ 
+ static void CleanupDeviceD3D()
+ {
+     if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = nullptr; }
+     if (g_pD3D)       { g_pD3D->Release();       g_pD3D       = nullptr; }
+ }
+ 
+ static void ResetDevice()
+ {
+     ImGui_ImplDX9_InvalidateDeviceObjects();
+     HRESULT hr = g_pd3dDevice->Reset(&g_d3dpp);
+     if (hr == D3DERR_INVALIDCALL)
+         IM_ASSERT(0);
+     ImGui_ImplDX9_CreateDeviceObjects();
+ }
+ 
+ // ---------------------------------------------------------------------------
+ // Win32 message handler
+ // ---------------------------------------------------------------------------
+ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
+     HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+ 
+ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+ {
+     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+         return true;
+ 
+     switch (msg)
+     {
+     case WM_SIZE:
+         if (wParam == SIZE_MINIMIZED)
+             return 0;
+         g_ResizeWidth  = static_cast<UINT>(LOWORD(lParam));
+         g_ResizeHeight = static_cast<UINT>(HIWORD(lParam));
+         return 0;
+     case WM_SYSCOMMAND:
+         if ((wParam & 0xfff0) == SC_KEYMENU)
+             return 0;
+         break;
+     case WM_DESTROY:
+         ::PostQuitMessage(0);
+         return 0;
+     }
+     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+ }
